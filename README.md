@@ -52,7 +52,7 @@ cookiecutter path/to/cookiecutter-python-ca
 <project_slug>/
 ├── AGENTS.md                        # Quick reference for developers and AI agents
 ├── docs/
-│   └── DEVELOPMENT_GUIDELINES.md   # Architecture rules and coding conventions
+│   └── DEVELOPMENT_GUIDELINES.md    # Architecture rules and coding conventions
 ├── Makefile                         # Development workflow
 ├── pyproject.toml
 ├── <project_slug>/
@@ -71,7 +71,7 @@ cookiecutter path/to/cookiecutter-python-ca
 │   │   └── web/                     # FastAPI (if use_web_api = yes)
 │   └── bootstrap/
 │       ├── settings.py              # pydantic-settings
-│       └── container.py            # DI container
+│       └── container.py             # DI container
 ├── tests/
 │   ├── unit/
 │   │   ├── domain/
@@ -115,5 +115,6 @@ uv run pytest tests/ -v
 ```
 
 Tests generate projects for all option combinations and verify:
+
 - Correct file structure (files present / absent based on options)
 - `make all` completes successfully in each generated project
