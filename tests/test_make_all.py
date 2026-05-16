@@ -1,0 +1,95 @@
+"""Run make targets in generated projects and verify they complete successfully."""
+
+import shutil
+import subprocess
+from pathlib import Path
+
+import pytest
+
+BUN_AVAILABLE = shutil.which("bun") is not None
+
+
+def make(project: Path, *targets: str) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(
+        ["make", *targets],
+        cwd=project,
+        capture_output=True,
+        text=True,
+    )
+
+
+def assert_success(result: subprocess.CompletedProcess[str]) -> None:
+    assert result.returncode == 0, (
+        f"Command failed (exit {result.returncode})\n"
+        f"--- stdout ---\n{result.stdout}\n"
+        f"--- stderr ---\n{result.stderr}"
+    )
+
+
+class TestMakeMinimal:
+    """use_web_api=no, use_frontend=no — make all must pass."""
+
+    @pytest.fixture
+    def project(self, bake: object) -> Path:
+        return bake(use_web_api="no", use_frontend="no")  # type: ignore[operator]
+
+    def test_format_python(self, project: Path) -> None:
+        assert_success(make(project, "format-python"))
+
+    def test_lint_python(self, project: Path) -> None:
+        assert_success(make(project, "lint-python"))
+
+    def test_test_python(self, project: Path) -> None:
+        assert_success(make(project, "test-python"))
+
+    def test_make_all(self, project: Path) -> None:
+        assert_success(make(project, "all"))
+
+
+class TestMakeWebAPI:
+    """use_web_api=yes, use_frontend=no — make all must pass."""
+
+    @pytest.fixture
+    def project(self, bake: object) -> Path:
+        return bake(use_web_api="yes", use_frontend="no")  # type: ignore[operator]
+
+    def test_format_python(self, project: Path) -> None:
+        assert_success(make(project, "format-python"))
+
+    def test_lint_python(self, project: Path) -> None:
+        assert_success(make(project, "lint-python"))
+
+    def test_test_python(self, project: Path) -> None:
+        assert_success(make(project, "test-python"))
+
+    def test_make_all(self, project: Path) -> None:
+        assert_success(make(project, "all"))
+
+
+@pytest.mark.skipif(not BUN_AVAILABLE, reason="bun is not available")
+class TestMakeFullStack:
+    """use_web_api=yes, use_frontend=yes — make all must pass (requires bun)."""
+
+    @pytest.fixture
+    def project(self, bake: object) -> Path:
+        p: Path = bake(use_web_api="yes", use_frontend="yes")  # type: ignore[operator]
+        result = subprocess.run(
+            ["bun", "install"],
+            cwd=p / "web",
+            capture_output=True,
+            text=True,
+        )
+        assert result.returncode == 0, f"bun install failed:\n{result.stderr}"
+        return p
+
+    def test_format_python(self, project: Path) -> None:
+        assert_success(make(project, "format-python"))
+
+    def test_lint_python(self, project: Path) -> None:
+        assert_success(make(project, "lint-python"))
+
+    def test_test_python(self, project: Path) -> None:
+        assert_success(make(project, "test-python"))
+
+    def test_make_all(self, project: Path) -> None:
+        assert_success(make(project, "all"))

@@ -1,0 +1,10 @@
+{
+    "project_name": "My Python App",
+    "project_slug": "{{ cookiecutter.project_name.lower().replace(' ', '_').replace('-', '_') }}",
+    "project_description": "A Python application",
+    "author_name": "Your Name",
+    "author_email": "you@example.com",
+    "python_version": ["3.12", "3.13"],
+    "use_web_api": ["yes", "no"],
+    "use_frontend": ["yes", "no"]
+}

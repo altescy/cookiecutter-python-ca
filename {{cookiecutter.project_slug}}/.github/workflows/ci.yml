@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    name: CI
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6.0.2
+
+      - uses: astral-sh/setup-uv@v8.1.0
+        with:
+          python-version: "{{ cookiecutter.python_version }}"
+{%- if cookiecutter.use_frontend == "yes" %}
+
+      - uses: oven-sh/setup-bun@v2.2.0
+
+      - name: Install frontend dependencies
+        run: bun install
+        working-directory: web
+{%- endif %}
+
+      - name: Install dependencies
+        run: uv sync --group dev
+
+      - name: Run all checks
+        run: make all
