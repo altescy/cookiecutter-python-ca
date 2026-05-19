@@ -4,9 +4,9 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "bunx --bun vite",
     "build": "tsc -b && vite build",
-    "lint": "biome lint src",
+    "lint": "biome lint src && tsc --noEmit",
     "format": "biome format --write src",
     "test": "vitest run --passWithNoTests",
     "generate-api": "openapi-ts"

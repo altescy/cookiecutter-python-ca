@@ -38,6 +38,11 @@ help:
 	@echo "  generate-api      Regenerate API client from OpenAPI schema"
 {%- endif %}
 
+.PHONY: setup
+setup:
+	uv sync --dev --all-extras
+	cd web && bun install
+
 .PHONY: all
 all: format lint test
 
