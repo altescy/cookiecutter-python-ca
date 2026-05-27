@@ -15,6 +15,6 @@ export default defineConfig({
     },
   },
   build: {
-    outDir: "dist",
+    outDir: "../{{cookiecutter.project_slug}}/interface/web/static",
   },
 });
