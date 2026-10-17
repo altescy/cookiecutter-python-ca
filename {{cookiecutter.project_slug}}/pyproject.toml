@@ -5,22 +5,22 @@ description = "{{ cookiecutter.project_description }}"
 readme = "README.md"
 requires-python = ">={{ cookiecutter.python_version }}"
 dependencies = [
-    "pydantic>=2.0",
-    "pydantic-settings>=2.0",
+    "pydantic>=2.14.1",
+    "pydantic-settings>=2.16.0",
 {%- if cookiecutter.use_web_api == "yes" %}
-    "fastapi[standard]>=0.115",
-    "uvicorn>=0.30",
+    "fastapi[standard]>=0.143.3",
+    "uvicorn>=0.54.0",
 {%- endif %}
 ]
 
 [dependency-groups]
 dev = [
-    "pyright>=1.1",
-    "pytest>=8.0",
-    "pytest-asyncio>=0.24",
-    "ruff>=0.8",
+    "pyright>=1.1.414",
+    "pytest>=9.1.1",
+    "pytest-asyncio>=1.4.0",
+    "ruff>=0.17.1",
 {%- if cookiecutter.use_web_api == "yes" %}
-    "httpx>=0.27",
+    "httpx2>=2.13.1",
 {%- endif %}
 ]
 

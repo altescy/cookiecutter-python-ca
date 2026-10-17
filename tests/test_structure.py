@@ -153,6 +153,7 @@ class TestWebAPI:
         content = (project / "pyproject.toml").read_text()
         assert "fastapi" in content
         assert "uvicorn" in content
+        assert "httpx2>=" in content
         assert "httpx" in content
 
     def test_makefile_has_serve(self, project: Path) -> None:

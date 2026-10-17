@@ -1,5 +1,6 @@
 """Run make targets in generated projects and verify they complete successfully."""
 
+import os
 import shutil
 import subprocess
 from pathlib import Path
@@ -100,6 +101,15 @@ class TestMakeFullStack:
     def test_lint_typescript(self, project: Path) -> None:
         assert_success(make(project, "lint-typescript"))
 
+    def test_generated_api_checks_and_build(self, project: Path) -> None:
+        assert_success(make(project, "generate-api"))
+        generated = project / "web/src/shared/api/generated"
+        assert (generated / "sdk.gen.ts").is_file()
+        assert (generated / "types.gen.ts").is_file()
+        api = project / "web/src/shared/api/index.ts"
+        api.write_text('export { createClient, createConfig } from "./generated/client";\n')
+        assert_success(make(project, "lint-typescript", "frontend"))
+
     def test_architecture(self, project: Path) -> None:
         result = subprocess.run(
             ["bun", "run", "lint:architecture"], cwd=project / "web", capture_output=True, text=True
@@ -145,3 +155,18 @@ class TestMakeFullStack:
             ["bun", "run", "lint:architecture"], cwd=project / "web", capture_output=True, text=True
         )
         assert_success(result)
+
+
+@pytest.mark.parametrize("python_version", ["3.12", "3.13", "3.14"])
+def test_supported_python_versions(bake: object, python_version: str) -> None:
+    project: Path = bake(  # type: ignore[operator]
+        use_web_api="yes", use_frontend="no", python_version=python_version
+    )
+    result = subprocess.run(
+        ["make", "all"],
+        cwd=project,
+        env={**os.environ, "UV_PYTHON": python_version},
+        capture_output=True,
+        text=True,
+    )
+    assert_success(result)

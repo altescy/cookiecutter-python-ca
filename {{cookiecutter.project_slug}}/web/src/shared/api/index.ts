@@ -1,1 +1,2 @@
-export { createClient, createConfig } from "@hey-api/client-fetch";
+// Add explicit exports from ./generated after running make generate-api.
+export {};

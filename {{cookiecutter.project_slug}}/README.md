@@ -59,7 +59,7 @@ web/src/
 ├── app/                  # Composition and global styles
 ├── pages/home/           # Home page slice; index.ts is its public API
 │   └── ui/
-└── shared/api/           # HTTP client factories and generated API client
+└── shared/api/           # Public API boundary and generated API client
 ```
 
 Add `widgets/`, `features/`, and `entities/` only when needed. Dependencies point downward:

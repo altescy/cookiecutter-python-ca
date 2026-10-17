@@ -43,7 +43,7 @@ cookiecutter path/to/cookiecutter-python-ca
 | `project_description` | `A Python application` | Short description |
 | `author_name` | `Your Name` | Author name |
 | `author_email` | `you@example.com` | Author email |
-| `python_version` | `3.12` | Minimum Python version (`3.12` or `3.13`) |
+| `python_version` | `3.12` | Minimum Python version (`3.12`, `3.13`, or `3.14`) |
 | `use_web_api` | `yes` | Include FastAPI web interface (`yes` / `no`) |
 | `use_frontend` | `yes` | Include React/Vite frontend (`yes` / `no`, requires `use_web_api = yes`) |
 
@@ -85,7 +85,7 @@ cookiecutter path/to/cookiecutter-python-ca
         ├── main.tsx
         ├── app/                     # Composition and global styles
         ├── pages/home/              # Page slice with an index.ts public API
-        └── shared/api/              # HTTP client factories and generated SDK
+        └── shared/api/              # Public API boundary and generated SDK
 ```
 
 ## Getting Started (generated project)

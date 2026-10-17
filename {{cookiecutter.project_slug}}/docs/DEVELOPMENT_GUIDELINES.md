@@ -123,16 +123,17 @@ Frontend entities do not need to mirror Python domain entities or generated API 
 
 For example, expose a new feature from `features/sign-in/index.ts`, with its component in
 `features/sign-in/ui/sign-in-form.tsx`. Import it as `@/features/sign-in`, not through its internal path.
-Keep domain-specific API wrappers in the relevant slice's `api/` segment. `shared/api/index.ts`
-initially exposes HTTP client factories; after `make generate-api`, add explicit public exports for
-the generated SDK functions and types that handwritten code needs. Do not import generated internals
-directly from pages or features.
+Keep domain-specific API wrappers in the relevant slice's `api/` segment. After `make generate-api`,
+add explicit public exports to `shared/api/index.ts` for the generated SDK functions, client factories,
+and types that handwritten code needs. The fetch client is bundled with the generator; no separate
+`@hey-api/client-fetch` dependency is needed. Do not import generated internals directly from pages or features.
 
 ### Type Safety
 
 - `strict: true` in tsconfig — no implicit any.
 - Never manually edit `shared/api/generated/` — run `make generate-api`.
 - Prefer type inference; add explicit annotations only when inference fails or for public APIs.
+- Keep TypeScript on 6.x until the OpenAPI generator supports TypeScript 7's compiler API changes.
 
 ### Style
 
