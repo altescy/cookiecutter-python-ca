@@ -68,10 +68,16 @@ FRONTEND_ONLY = [
     "web/tsconfig.json",
     "web/vite.config.ts",
     "web/biome.json",
+    "web/steiger.config.ts",
+    "web/openapi-ts.config.ts",
     "web/index.html",
     "web/public/favicon.svg",
     "web/src/main.tsx",
-    "web/src/App.tsx",
+    "web/src/app/App.tsx",
+    "web/src/app/styles/index.css",
+    "web/src/pages/home/index.ts",
+    "web/src/pages/home/ui/home-page.tsx",
+    "web/src/shared/api/index.ts",
     "web/src/vite-env.d.ts",
 ]
 
@@ -174,6 +180,16 @@ class TestFullStack:
 
     def test_frontend_files_exist(self, project: Path) -> None:
         assert_files_exist(project, FRONTEND_ONLY)
+
+    def test_frontend_starts_with_minimal_fsd_layers(self, project: Path) -> None:
+        src = project / "web" / "src"
+        assert not (src / "App.tsx").exists()
+        for layer in ("widgets", "features", "entities"):
+            assert not (src / layer).exists()
+
+    def test_home_page_project_name(self, project: Path) -> None:
+        content = (project / "web/src/pages/home/ui/home-page.tsx").read_text()
+        assert "test app" in content
 
     def test_makefile_has_all_targets(self, project: Path) -> None:
         content = (project / "Makefile").read_text()

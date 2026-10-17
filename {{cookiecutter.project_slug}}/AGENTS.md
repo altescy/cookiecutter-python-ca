@@ -30,7 +30,7 @@ make test-python        # pytest tests/
 
 # TypeScript (runs inside web/)
 make format-typescript  # biome format
-make lint-typescript    # biome lint
+make lint-typescript    # biome lint + type check + FSD architecture check
 make test-typescript    # vitest run
 {%- endif %}
 {%- if cookiecutter.use_web_api == "yes" %}
@@ -83,6 +83,8 @@ Frontend is built to `{{ cookiecutter.project_slug }}/interface/web/static/` and
 **TypeScript (web/)**
 - React, Vite, Bun
 - Feature-Sliced Design: `app/` → `pages/` → `widgets/` → `features/` → `entities/` → `shared/`
+- Start with `app/`, `pages/home/`, and `shared/api/`; add other layers only when needed
+- Steiger checks layer dependencies and slice public APIs as part of `make lint`
 - Biome: tabs, double quotes
 - Path alias: `@/` → `web/src/`
 {%- endif %}

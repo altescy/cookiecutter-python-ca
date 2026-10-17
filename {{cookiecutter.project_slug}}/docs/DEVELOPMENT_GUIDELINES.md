@@ -86,17 +86,47 @@ interface ──→ application ──→ domain ←── infrastructure
 app → pages → widgets → features → entities → shared
 ```
 
-- Higher layers may only import from **lower** layers.
-- Cross-slice imports within the same layer are **forbidden**.
-- All imports from a slice must go through its `index.ts` (public API).
+- Imports between layers must point **downward**; layers may be skipped.
+- Cross-slice imports within the same layer are **forbidden** by default.
+- Imports from outside a slice must go through its `index.ts` (public API). Use relative imports inside a slice.
+- `app/` and `shared/` have segments, not business slices. Their segments may import each other within the same layer.
+- Shared segments expose their public API through `index.ts`; global styles in `app/styles/` are imported directly.
+- `src/main.tsx` only mounts the application; composition and global styles belong in `app/`.
+- Run `bun run lint:architecture` from `web/` to check these boundaries with Steiger. It also runs as part of `make lint` and `make all`.
+- Structural and layer dependency checks are disabled for `shared/api/generated/`. The public API sidestep rule stays enabled so handwritten consumers cannot bypass `shared/api/index.ts`.
+
+### Start Small
+
+The template starts with `app/`, `pages/home/`, and `shared/api/`. Add other layers only when needed:
+
+| Layer | Purpose |
+|-------|---------|
+| `app/` | Application composition, providers, routing, global styles |
+| `pages/` | Screens; keep page-specific UI and logic in the page slice |
+| `widgets/` | Large, self-contained UI blocks composed from lower layers |
+| `features/` | Reusable user interactions, such as signing in or adding an item |
+| `entities/` | Frontend business concepts, such as users or items |
+| `shared/` | Business-agnostic UI, utilities, configuration, and API infrastructure |
+
+Do not create empty layers or extract a feature just to distribute code across folders.
+Frontend entities do not need to mirror Python domain entities or generated API types.
 
 ### Segment Conventions
 
 | Segment | Purpose |
 |---------|---------|
-| `ui/` | React components (presentational) |
-| `model/` | State (Jotai atoms), types, hooks |
+| `ui/` | React components and related styles |
+| `model/` | State, types, hooks, and business logic |
 | `api/` | Data fetching, API call wrappers |
+| `lib/` | Internal utilities grouped by purpose |
+| `config/` | Configuration |
+
+For example, expose a new feature from `features/sign-in/index.ts`, with its component in
+`features/sign-in/ui/sign-in-form.tsx`. Import it as `@/features/sign-in`, not through its internal path.
+Keep domain-specific API wrappers in the relevant slice's `api/` segment. `shared/api/index.ts`
+initially exposes HTTP client factories; after `make generate-api`, add explicit public exports for
+the generated SDK functions and types that handwritten code needs. Do not import generated internals
+directly from pages or features.
 
 ### Type Safety
 
@@ -107,8 +137,9 @@ app → pages → widgets → features → entities → shared
 ### Style
 
 - Formatter: Biome (tabs, double quotes).
-- No inline styles — use Tailwind CSS classes.
-- State: Jotai atoms for shared state; `useState` only for component-local ephemeral state.
+- Use CSS or CSS Modules for component styles; put global styles in `app/styles/`.
+- Use React state for local state. Add a shared-state library only when needed; FSD does not require one.
+- Tailwind CSS and Jotai are not included or required.
 
 ---
 {%- endif %}
@@ -140,7 +171,7 @@ tests/unit/infrastructure/repositories/...   →  {{ cookiecutter.project_slug }
 ### Frontend Tests
 
 - Place tests in `__tests__/` within the relevant segment.
-- Test atoms and logic — not component rendering (unless behavior is complex).
+- Test state and logic; add component behavior tests when useful.
 - Use vitest.
 {%- endif %}
 

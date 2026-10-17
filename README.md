@@ -12,6 +12,7 @@ A [Cookiecutter](https://cookiecutter.readthedocs.io) template for Python applic
 - [pydantic-settings](https://docs.pydantic.dev/latest/concepts/pydantic_settings/) for configuration
 - Optional **FastAPI + uvicorn** web API interface
 - Optional **React + Vite + Biome** frontend (requires web API)
+- Minimal **Feature-Sliced Design** frontend with **Steiger** architecture checks
 - `AGENTS.md` and `docs/DEVELOPMENT_GUIDELINES.md` included in every generated project
 
 ## Requirements
@@ -80,6 +81,11 @@ cookiecutter path/to/cookiecutter-python-ca
 │   └── integration/
 │       └── web/                     # FastAPI TestClient tests (if use_web_api = yes)
 └── web/                             # React + Vite frontend (if use_frontend = yes)
+    └── src/
+        ├── main.tsx
+        ├── app/                     # Composition and global styles
+        ├── pages/home/              # Page slice with an index.ts public API
+        └── shared/api/              # HTTP client factories and generated SDK
 ```
 
 ## Getting Started (generated project)
@@ -106,6 +112,11 @@ interface ──→ application ──→ domain ←── infrastructure
 - **`infrastructure/`** — implements the repository protocols defined in `domain`. Contains all external-facing code (databases, APIs, etc.).
 - **`interface/`** — delivery mechanisms (CLI, HTTP). Thin handlers that call use cases and serialize results.
 - **`bootstrap/`** — wires all layers together. Contains `AppSettings` and the DI `Container`.
+
+The frontend follows Feature-Sliced Design: `app → pages → widgets → features → entities → shared`.
+Only `app`, `pages/home`, and `shared/api` are included initially; add other layers when needed.
+Steiger checks layer dependencies and public API boundaries as part of `make lint` and `make all`.
+FSD does not require a particular state management or CSS library.
 
 ## Template Tests
 

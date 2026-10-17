@@ -93,3 +93,55 @@ class TestMakeFullStack:
 
     def test_make_all(self, project: Path) -> None:
         assert_success(make(project, "all"))
+
+    def test_frontend_build(self, project: Path) -> None:
+        assert_success(make(project, "frontend"))
+
+    def test_lint_typescript(self, project: Path) -> None:
+        assert_success(make(project, "lint-typescript"))
+
+    def test_architecture(self, project: Path) -> None:
+        result = subprocess.run(
+            ["bun", "run", "lint:architecture"], cwd=project / "web", capture_output=True, text=True
+        )
+        assert_success(result)
+
+    @pytest.mark.parametrize(
+        ("target", "rule"),
+        [
+            ("@/app/App", "fsd/forbidden-imports"),
+            ("../../../app/App", "fsd/forbidden-imports"),
+            ("@/pages/other", "fsd/forbidden-imports"),
+            ("../../other", "fsd/forbidden-imports"),
+            ("@/shared/api/internal", "fsd/no-public-api-sidestep"),
+            ("../../../shared/api/internal", "fsd/no-public-api-sidestep"),
+            ("@/shared/api/generated/client", "fsd/no-public-api-sidestep"),
+        ],
+    )
+    def test_architecture_rejects_invalid_imports(self, project: Path, target: str, rule: str) -> None:
+        src = project / "web/src"
+        other = src / "pages/other"
+        (other / "ui").mkdir(parents=True)
+        (other / "ui/other-page.tsx").write_text("export const OtherPage = () => null;\n")
+        (other / "index.ts").write_text('export { OtherPage } from "./ui/other-page";\n')
+        (src / "shared/api/internal.ts").write_text("export const internal = true;\n")
+        generated = src / "shared/api/generated"
+        generated.mkdir()
+        (generated / "client.ts").write_text("export const generated = true;\n")
+        page = src / "pages/home/ui/home-page.tsx"
+        page.write_text(f'import * as forbidden from "{target}";\n' + page.read_text() + "\nvoid forbidden;\n")
+
+        result = subprocess.run(
+            ["bun", "run", "lint:architecture"], cwd=project / "web", capture_output=True, text=True
+        )
+        assert result.returncode != 0, result.stdout + result.stderr
+        assert rule in result.stdout + result.stderr
+
+    def test_architecture_ignores_generated_code(self, project: Path) -> None:
+        generated = project / "web/src/shared/api/generated"
+        generated.mkdir()
+        (generated / "client.ts").write_text('export { App } from "@/app/App";\n')
+        result = subprocess.run(
+            ["bun", "run", "lint:architecture"], cwd=project / "web", capture_output=True, text=True
+        )
+        assert_success(result)
