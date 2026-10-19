@@ -6,8 +6,6 @@ from fastapi import FastAPI
 
 def create_app() -> FastAPI:
     from fastapi.middleware.cors import CORSMiddleware
-    from fastapi.responses import FileResponse, HTMLResponse
-    from fastapi.staticfiles import StaticFiles
 
     from {{ cookiecutter.project_slug }}.domain.errors import DomainError
 
@@ -35,15 +33,7 @@ def create_app() -> FastAPI:
 
     app.include_router(api.ROUTER, prefix="/api")
 
-    if STATIC_DIR.exists():
-        app.mount("/assets", StaticFiles(directory=STATIC_DIR / "assets", html=True), name="ui")
-
-        @app.get("/favicon.svg", response_class=FileResponse)
-        def favicon() -> FileResponse:  # pyright: ignore[reportUnusedFunction]
-            return FileResponse(STATIC_DIR / "favicon.svg", media_type="image/svg+xml")
-
-        @app.get("/{full_path:path}", response_class=HTMLResponse)
-        def spa_fallback(full_path: str) -> FileResponse:  # pyright: ignore[reportUnusedFunction]
-            return FileResponse(STATIC_DIR / "index.html", media_type="text/html")
+    if STATIC_DIR.is_dir():
+        app.frontend("/", directory=STATIC_DIR, fallback="index.html")
 
     return app

@@ -70,4 +70,15 @@ Import slices through their public APIs, for example `@/pages/home`.
 To run only architecture checks: `cd web && bun run lint:architecture`.
 Run `make generate-api` after changing FastAPI routes; do not edit `shared/api/generated/` manually.
 See `docs/DEVELOPMENT_GUIDELINES.md` for layer responsibilities and extension examples.
+
+### Frontend Serving
+
+Run `make frontend` to build static files into `{{ cookiecutter.project_slug }}/interface/web/static/`,
+then start FastAPI with `make serve`. FastAPI's `app.frontend()` serves the build at `/` and handles
+SPA navigation with an `index.html` fallback. API routes and `/docs` take precedence.
+The fallback requires a `GET` or `HEAD` request explicitly accepting HTML. Normal asset requests
+and JSON requests for missing paths return `404` rather than the SPA HTML.
+
+During development, run Vite separately (`cd web && bun run dev`); `/api` is proxied to FastAPI.
+When the build directory is absent, FastAPI still starts and serves the API without registering a frontend.
 {%- endif %}

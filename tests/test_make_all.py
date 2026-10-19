@@ -97,6 +97,27 @@ class TestMakeFullStack:
 
     def test_frontend_build(self, project: Path) -> None:
         assert_success(make(project, "frontend"))
+        result = subprocess.run(
+            [
+                "uv", "run", "python", "-c",
+                "from fastapi.testclient import TestClient\n"
+                "from test_app.interface.web.app import create_app\n"
+                "from test_app.interface.web.constants import STATIC_DIR\n"
+                "with TestClient(create_app()) as client:\n"
+                "    response = client.get('/')\n"
+                "    assert response.status_code == 200\n"
+                "    assert response.text == (STATIC_DIR / 'index.html').read_text()\n"
+                "    asset = next((STATIC_DIR / 'assets').glob('*.js'))\n"
+                "    response = client.get('/' + asset.relative_to(STATIC_DIR).as_posix())\n"
+                "    assert response.status_code == 200\n"
+                "    assert response.content == asset.read_bytes()\n"
+                "    assert client.get('/api/health').json() == 'OK'\n",
+            ],
+            cwd=project,
+            capture_output=True,
+            text=True,
+        )
+        assert_success(result)
 
     def test_lint_typescript(self, project: Path) -> None:
         assert_success(make(project, "lint-typescript"))

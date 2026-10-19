@@ -60,6 +60,7 @@ WEB_ONLY = [
     "tests/integration/conftest.py",
     "tests/integration/web/__init__.py",
     "tests/integration/web/test_health.py",
+    "tests/integration/web/test_frontend.py",
 ]
 
 # Files only present when use_frontend=yes (requires use_web_api=yes)

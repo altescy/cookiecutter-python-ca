@@ -65,7 +65,7 @@ Clean Architecture layers under `{{ cookiecutter.project_slug }}/`:
 Settings use env prefix `{{ cookiecutter.project_slug | upper }}_` with `__` as the nested delimiter. Loaded from `.env` automatically via Makefile (`uv run --env-file .env`).
 {%- if cookiecutter.use_frontend == "yes" %}
 
-Frontend is built to `{{ cookiecutter.project_slug }}/interface/web/static/` and served by FastAPI in production (`make frontend`).
+Frontend is built to `{{ cookiecutter.project_slug }}/interface/web/static/` (`make frontend`) and served by FastAPI's `app.frontend()` with SPA fallback. Without a build directory, the backend starts without registering frontend serving.
 {%- endif %}
 
 ## Stack

@@ -95,6 +95,14 @@ app → pages → widgets → features → entities → shared
 - Run `bun run lint:architecture` from `web/` to check these boundaries with Steiger. It also runs as part of `make lint` and `make all`.
 - Structural and layer dependency checks are disabled for `shared/api/generated/`. The public API sidestep rule stays enabled so handwritten consumers cannot bypass `shared/api/index.ts`.
 
+### Frontend Serving
+
+- Build with `make frontend`; FastAPI serves the output via `app.frontend("/", ..., fallback="index.html")`.
+- Do not add a catch-all API route or separate static mounts for SPA fallback; the native frontend handler preserves API route priority.
+- SPA fallback applies only to GET/HEAD requests explicitly accepting HTML. Missing asset requests without HTML acceptance, JSON requests, and other methods return `404` instead of the SPA fallback.
+- Frontend serving is registered only when the build directory exists at app creation. Restart FastAPI after the first build.
+- Development uses Vite's dev server and `/api` proxy; a frontend build is not required to start the backend.
+
 ### Start Small
 
 The template starts with `app/`, `pages/home/`, and `shared/api/`. Add other layers only when needed:
